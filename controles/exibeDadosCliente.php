@@ -18,6 +18,21 @@ function exibirClientes ()
     return $dados;
 }
 
+//// funcao para buscar dados no bd
+function buscarClientes ($id)
+{    
+    // chama funcao que busca os dados no bd e recebe os registros de clientes
+    $dados = buscar($id);
+    
+    return $dados;
+}
+
+
+
+
+
+
+
 //// funcao para criar um array de dados no banco  no retorno do BANCO DE DADOS 
 function criarArray($objeto)
 {   

@@ -16,6 +16,7 @@ require_once("vendor/autoload.php");
 /// instancia da classe slim 
 /// esta instancia é realizada aos metodos da classe
 $app = new \Slim\App();
+
  
  
  
@@ -44,24 +45,116 @@ $app->get('/clientes', function ($request, $response, $args){
    
          $listDadosJSON = criarJSON($listDadosArray);
         
-    
+//// validacao para tratar banco de dados sem conteudo     
+   if($listDadosArray)
+    {     
 return  $response  ->withStatus(200)   
                    ->withHeader('content-type', 'application/json')
                    ->write($listDadosJSON);
+       
     
-    
+    }else{
+       //// 204 nao teve retorno , 
+       return $response      ->withStatus(200)
+                             ->withHeader('content-type', 'application/json')
+           
+                              ->write('{"message":"nao ha dados para essa requisicao"}');
+   }  
 });
+
+
+//// GET, retorna todos os dados de clientes
+$app->get('/clientes/{id}', function ($request, $response, $args){
+    
+/////importe do arquivo que solicita das requisicoes 
+/////de busca no bd
+    require_once('../controles/exibeDadosCliente.php');
+    
+    ////Recebe o ID que sera encaminhado no URL 
+    $id = $args['id'];
+    
+    
+    ///Chama a funcao (na pasta controles) que vai requisitar os dados no BANCO DE DADOS
+    if($listDados = buscarClientes($id))
+      
+     if($listDadosArray = criarArray($listDados))
+   
+         $listDadosJSON = criarJSON($listDadosArray);
+        
+//// validacao para tratar banco de dados sem conteudo     
+   if($listDadosArray)
+    {     
+return  $response  ->withStatus(200)   
+                   ->withHeader('content-type', 'application/json')
+                   ->write($listDadosJSON);
+       
+    
+    }else{
+       //// 204 nao teve retorno , 
+       return $response      ->withStatus(200)
+                             ->withHeader('content-type', 'application/json')
+           
+                              ->write('{"message":"nao ha dados para essa requisicao"}');
+   }  
+});
+
+
+
 
 
 ///Endpoint: POST , envia um novo cliente para o BD 
 $app->post('/clientes', function ($request, $response, $args){
+ 
+//// recebe o content type do header para verificar se o padrao ///do body sera json
+ $contentType = $request->getHeaderLine('Content-Type');
     
-return  $response  ->withStatus(201)   
+    if($contentType == 'application/json')
+    {
+        /// recebe o conteudo do enviado no body da mensagem
+        $dadosBodyJSON =$request->getParsedBody();
+        
+        
+        ///valida se o coorpo do body esta vazio 
+        if($dadosBodyJSON == "" || $dadosBodyJSON == null)
+        {
+             return  $response  ->withStatus(406)   
+                                 ->WithHeader('Content-Type', 'application/json')
+                                 ->write('{"message":"conteudo enviado pelo body nao contem dados validos"}');
+            
+        }else{
+         
+        ///importe do arquivo que vai emcaminhar os dados para o ///banco de dados    
+        require_once('../controles/recebeDadosClientesAPI.php');    
+    /// envia os dados para o banco de dados        
+       if(inserirClienteApi($dadosBodyJSON))
+        {   
+        
+       return  $response    ->withStatus(201)   
+                              ->WithHeader('Content-Type', 'application/json')
+                              ->write('{"message":"item criado com sucesso"}');
+           
+           }else{
+            return  $response  ->withStatus(400)   
+                              ->WithHeader('Content-Type', 'application/json')
+                              ->write('{"message":"nao foi possivel salvar os dados , favor conferir o body da mensagem"}');
+           
+               }
+            
+        }
+    }else{
+        
+    
+return  $response  ->withStatus(406)   
                    ->WithHeader('Content-Type', 'application/json')
-                   ->write('{"message":"item criado com sucesso"}');
+                   ->write('{"message":"formato de dados do header incompativel com o padrao JSON"}');
+    
+   }  
     
     
 });
+
+
+
 
 
 
