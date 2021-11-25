@@ -17,6 +17,13 @@ require_once('../functions/config.php');
 require_once(SRC.'bd/inserirClientes.php');
 
 
+
+require_once(SRC.'bd/atualizarCliente.php');
+
+
+
+
+
 //// funcao que vai inserir dados no banco de dados
 function inserirClienteApi($arrayDados)
 {
@@ -30,6 +37,33 @@ function inserirClienteApi($arrayDados)
     
     
 }
+
+
+//// funcao que vai atualizar dados no banco de dados
+//// via put da da api
+function atualizarClienteApi($arrayDados, $id)
+{
+    //// Cria um novo array apenas com um novo id 
+    $novoItem = array("id" => $id);
+
+    /// acresenta o arrray do novo item no arrayDados 
+    /// fazendo uma mescla de chaves 
+    $arrayCliente = $arrayDados + $novoItem;
+    
+    ////fazer tratamento fr dados para consistencia 
+    if(excluir($arrayCliente))
+        return true;
+    
+    else
+        return false;
+    
+    
+}
+
+
+
+
+
 
 
 

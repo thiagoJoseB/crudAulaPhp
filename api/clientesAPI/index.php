@@ -17,9 +17,13 @@ require_once("vendor/autoload.php");
 /// esta instancia é realizada aos metodos da classe
 $app = new \Slim\App();
 
- 
- 
- 
+
+
+
+
+
+
+
 /// EndPoint - é um ponto de parada da API, ou seja serao as ////formas de requisicao que a API ira responder 
 
 /*
@@ -158,28 +162,108 @@ return  $response  ->withStatus(406)
 
 
 
+
+
 ///Endpoint: PUT , atualiza um cliente no BD
-$app->put('/clientes', function ($request, $response, $args){
+$app->put('/clientes/{id}', function ($request, $response, $args){
     
-return  $response  ->withStatus(201)   
+    //// recebe o content type do header para verificar se o padrao ///do body sera json
+ $contentType = $request->getHeaderLine('Content-Type');
+    /// valida se é JSON
+    if($contentType == 'application/json')
+    {
+        /// recebe o conteudo do enviado no body da mensagem
+        $dadosBodyJSON =$request->getParsedBody();
+        
+        
+     
+        
+        
+        ///valida se o coorpo do body esta vazio 
+        if($dadosBodyJSON == "" || $dadosBodyJSON == null || !isset($args['id']) || !is_numeric($args['id']))       
+        {
+             return  $response  ->withStatus(406)   
+                                 ->WithHeader('Content-Type', 'application/json')
+                                 ->write('{"message":"conteudo enviado pelo body nao contem dados validos"}');
+            
+        }else{
+            
+               //// recebe o id que sera enviado pela URL
+        $id = $args['id'];
+         
+        ///importe do arquivo que vai emcaminhar os dados para o ///banco de dados    
+        require_once('../controles/recebeDadosClientesAPI.php');    
+    /// envia os dados para o banco de dados        
+       if(atualizarClienteApi($dadosBodyJSON, $id))
+        {   
+        
+       return  $response    ->withStatus(200)   
+                              ->WithHeader('Content-Type', 'application/json')
+                              ->write('{"message":"item atualizado com sucesso"}');
+           
+           }else{
+            return  $response  ->withStatus(400)   
+                              ->WithHeader('Content-Type', 'application/json')
+                              ->write('{"message":"nao foi possivel salvar os dados , favor conferir o body da mensagem"}');
+           
+               }
+            
+        }
+    }else{
+        
+    
+return  $response  ->withStatus(406)   
                    ->WithHeader('Content-Type', 'application/json')
-                   ->write('{"message":"item atualizado com sucesso"}');
+                   ->write('{"message":"formato de dados do header incompativel com o padrao JSON"}');
     
+   }
+    
+
     
 });
 
 
-///Endpoint: DELETE , exclui um cliente no BD
-$app->delete('/clientes', function ($request, $response, $args){
+
+
+
+$app->delete('/clientes/{id}', function ($request, $response, $args){
+
+    ///valida se o coorpo do body esta vazio 
+        if(!isset($args['id']) || !is_numeric($args['id']))       
+        {
+             return  $response  ->withStatus(406)   
+                                 ->WithHeader('Content-Type', 'application/json')
+                                 ->write('{"message":"conteudo enviado pelo body nao contem dados validos"}');
+            
+        }else{
+            
+               //// recebe o id que sera enviado pela URL
+        $id = $args['id'];
+         
+        ///importe do arquivo que de exclusao do cliente
+        require_once('../controles/excluirDadosClientesAPI.php'); 
+            
     
-return  $response  ->withStatus(200)   
-                   ->WithHeader('Content-Type', 'application/json')
-                   ->write('{"message":"item excluido com sucesso"}');
-    
+            
+       if(excluirClienteApi($id))
+        {   
+        
+       return  $response    ->withStatus(200)   
+                              ->WithHeader('Content-Type', 'application/json')
+                              ->write('{"message":"item excluido com sucesso "}');
+           
+           }else{
+            return  $response  ->withStatus(400)   
+                              ->WithHeader('Content-Type', 'application/json')
+                              ->write('{"message":nao foi possivel excluir"}');
+           
+               }
+            
+        }
+
     
 });
 
-///Carrega todos os EndPoint para execucao 
 
 $app->run();
 

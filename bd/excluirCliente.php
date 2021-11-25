@@ -23,11 +23,11 @@ function excluir($idCliente)
     $conexao = conexaoMysql();
     
    if(mysqli_query($conexao , $sql)) 
-               /// banco , script 
+       if(mysqli_affected_rows($conexao))
+          return true;
+       else
+           return false;
        
-
-    return true; /// retorna verdadeiro se o registro no banco for inserido
-    
     else
         return false; /// retorna falso se tiver algum problema
 
