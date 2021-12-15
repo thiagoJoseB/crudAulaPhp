@@ -29,7 +29,15 @@ function buscarClientes ($id)
 
 
 
-
+/// 02 pasta bd listar clientes
+/// pasta 
+//// Funcao para buscar dados do BD com filtro ///nome(API)
+function buscarNomeClientes($nome){
+    
+    $dados = buscarNome($nome);
+    
+    return $dados;
+}
 
 
 

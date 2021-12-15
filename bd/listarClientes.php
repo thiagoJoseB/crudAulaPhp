@@ -78,6 +78,28 @@ function buscar ($idCliente)
 }
 
 
+///// passo 03 , 04 index api
+//// retorna a lista de registro com filtro pelo nome do cliente 
+function buscarNome($nome)
+{
+     $sql = "select tblcliente.*, tblEstado.sigla 
+         from tblcliente 
+         inner join tblEstado
+        on tblEstado.idEstado = tblCliente.idEstado
+    
+    where tblcliente.nome like '%".$nome."%'"; 
+    
+    // abre a conexao com o banco de dados
+    $conexao = conexaoMysql();
+    
+    //solicita ao banco a execucao do script sql  
+   $select = mysqli_query($conexao, $sql);
+    
+    return $select;
+    
+    
+}
+
 
 
 

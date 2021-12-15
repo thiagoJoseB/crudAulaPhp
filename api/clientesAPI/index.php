@@ -41,14 +41,37 @@ $app->get('/clientes', function ($request, $response, $args){
 /////importe do arquivo que solicita das requisicoes 
 /////de busca no bd
     require_once('../controles/exibeDadosCliente.php');
+    ///passo 04
+    //// validada a existencia da chegada de dados como paramentro 
+    ///parametro para filtar pelo nome
+    if(isset($request->getQueryParams()['nome'])){
     
+    /*recebendo dados pela queryString 01*/
+ //// pasta controles 02   
+  $nome = (string) null;  
+                   //// parametro que sera recebido
+  $nome = $request->getQueryParams()['nome'];
+        
+
+        
+ if($listDados = buscarNomeClientes($nome))
+      
+     if($listDadosArray = criarArray($listDados))
+   
+         $listDadosJSON = criarJSON($listDadosArray);
+                
+    
+  /***/       
+  }else{
+   
     ///Chama a funcao (na pasta controles) que vai requisitar os dados no BANCO DE DADOS
     if($listDados = exibirClientes())
       
      if($listDadosArray = criarArray($listDados))
    
          $listDadosJSON = criarJSON($listDadosArray);
-        
+    }/// ELSE ACIMA
+    
 //// validacao para tratar banco de dados sem conteudo     
    if($listDadosArray)
     {     
